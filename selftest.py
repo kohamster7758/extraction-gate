@@ -159,6 +159,18 @@ def main():
     r.append(row(row_id="r5", doi="10.1000/c", group="S3", label="1", smiles=CYCLOHEXANE))
     case("C11-cross", r, "C11")
 
+    # C12 a compound that was accepted last time has quietly gone missing.
+    # Every other check walks the rows that are here, so nobody looks for it.
+    r = [x for x in clean_rows() if x["row_id"] != "r2"]
+    snap = {"r1": {}, "r2": {}, "r3": {}}
+    case("C12-deleted", r, "C12", snap=snap)
+
+    # C12 the same row_id twice
+    r = clean_rows()
+    d = dict(r[0])
+    r.append(d)
+    case("C12-duplicate-id", r, "C12")
+
     shutil.rmtree(tmp, ignore_errors=True)
 
     print()

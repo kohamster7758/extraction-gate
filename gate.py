@@ -58,6 +58,7 @@ CHECKS = [
     ("C9", "external cross-check", "structures reconcile with ChEMBL, keyed on the DOI"),
     ("C10", "exact duplicates", "the same measurement is not stored more than once"),
     ("C11", "label identity", "a printed label is not two different molecules"),
+    ("C12", "completeness", "nothing that was there last time has quietly gone missing"),
 ]
 
 
@@ -285,6 +286,28 @@ def check_label_identity(rows):
     return fails
 
 
+def check_completeness(rows, snap, expect=None):
+    """C12. Every other check walks the rows that are here. A row that vanished
+    is looked at by nobody, so a deleted compound leaves the run green.
+
+    This one walks the other way: from what was accepted last time, to what is
+    here now.
+    """
+    fails = []
+    ids = [r["row_id"] for r in rows]
+    dup = sorted({i for i in ids if ids.count(i) > 1})
+    if dup:
+        fails.append("C12: row_id is not unique, %d repeated: %s" % (len(dup), dup[:5]))
+    if snap:
+        gone = sorted(set(snap) - set(ids))
+        if gone:
+            fails.append("C12: %d row(s) in the accepted snapshot are missing here: %s"
+                         % (len(gone), gone[:8]))
+    if expect is not None and len(rows) != expect:
+        fails.append("C12: expected %d rows and have %d" % (expect, len(rows)))
+    return fails
+
+
 def check_chembl(rows, timeout=20):
     """C9. The one check that can see a swap between two structures in the same paper.
 
@@ -355,8 +378,9 @@ def load(path):
     return rows
 
 
-def run_checks(rows, out_path, out_root, snap=None, chembl=False):
+def run_checks(rows, out_path, out_root, snap=None, chembl=False, expect=None):
     fails, resolved = check_destination(out_path, out_root)
+    fails += check_completeness(rows, snap, expect)
     fails += check_formula_vs_source(rows)
     fails += check_formula_vs_snapshot(rows, snap)
     fails += check_stereocentres(rows)
@@ -393,6 +417,7 @@ def coverage(rows, snap, chembl):
         ("C9", "external cross-check", have("doi") if chembl else 0, n),
         ("C10", "exact duplicates", have("value"), n),
         ("C11", "label identity", parsed, n),
+        ("C12", "completeness", n, n),
     ]
 
 
@@ -409,6 +434,7 @@ def main(argv=None):
     ap.add_argument("--snapshot", help="JSON from a previously accepted run")
     ap.add_argument("--write-snapshot", help="write a snapshot after a passing run")
     ap.add_argument("--chembl", action="store_true", help="run the external cross-check (network)")
+    ap.add_argument("--expect", type=int, help="row count this run must produce")
     ap.add_argument("--list-checks", action="store_true")
     a = ap.parse_args(argv)
 
@@ -421,7 +447,7 @@ def main(argv=None):
 
     rows = load(a.rows)
     snap = json.load(open(a.snapshot, encoding="utf-8")) if a.snapshot else None
-    fails, resolved = run_checks(rows, a.out, a.out_root, snap, a.chembl)
+    fails, resolved = run_checks(rows, a.out, a.out_root, snap, a.chembl, a.expect)
 
     print("extraction-gate: %d rows from %s" % (len(rows), a.rows))
     print("  writing to %s" % resolved)

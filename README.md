@@ -28,7 +28,7 @@ python gate.py examples/rows_broken.tsv --out build/clean.tsv --out-root build -
 ```
 
 The first writes three rows. The second is the same file with a plausible
-error planted in each row, and it refuses on eight of the eleven checks
+error planted in each row, and it refuses on eight of the twelve checks
 without writing anything.
 
 ## Check the checker
@@ -37,7 +37,7 @@ without writing anything.
 python selftest.py
 ```
 
-Twelve cases: one poisoned row per check, plus a clean set that has to stay
+Fourteen cases: one poisoned row per check, plus a clean set that has to stay
 green. False red announces itself. False green does not, so the only way to
 trust a check is to have watched it fail.
 

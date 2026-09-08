@@ -56,6 +56,7 @@ python gate.py rows.tsv --out build/clean.tsv --out-root build
 python gate.py rows.tsv --out build/clean.tsv --out-root build --write-snapshot snap.json
 python gate.py rows.tsv --out build/clean.tsv --out-root build --snapshot snap.json
 python gate.py rows.tsv --out build/clean.tsv --out-root build --snapshot snap.json --chembl
+python gate.py rows.tsv --out build/clean.tsv --out-root build --snapshot snap.json --expect 940
 python gate.py --list-checks
 ```
 
@@ -85,14 +86,17 @@ check that can see failure 3 above, so run it at least once per corpus.
 | C9 external cross-check | activities attached to the wrong member of a pair |
 | C10 exact duplicates | the same measurement stored more than once |
 | C11 label identity | a printed label treated as a chemical identity |
+| C12 completeness | a row that was there last time has quietly gone missing |
 
-C10 and C11 are the two that were added last, and they are about counting
-rather than structure. C10 exists because a corpus that stores one measurement
+C10, C11 and C12 are about counting rather than structure. C10 exists because a corpus that stores one measurement
 once per substitution position will return hundreds of repeats at a ratio of
 exactly 1.00, all of them one row copied. C11 exists because bare compound
 numbers collide: in the corpus that produced this skill, of the twelve printed
 labels appearing in two or more papers with a structure resolved in both,
-twelve of twelve denoted more than one molecule.
+twelve of twelve denoted more than one molecule. C12 exists because every
+other check walks the rows that are present, so a row that was deleted between
+runs is looked at by nobody and leaves the run green. It walks the other way,
+from the accepted snapshot to what is here now.
 
 ## Verifying the checker itself
 
@@ -110,5 +114,5 @@ check.
 
 The checks assume small molecules and peptides with SMILES available. If your
 corpus has no structures, C2 through C8 and C11 have nothing to work with, and
-what is left is C1, C10 and whatever external check you can key on the DOI.
-That is still worth wiring in, because C1 and C10 are field-independent.
+what is left is C1, C10, C12 and whatever external check you can key on the
+DOI. That is still worth wiring in, because those three are field-independent.
