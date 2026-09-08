@@ -75,6 +75,13 @@ def run(rows, tmp, snap=None, out_name="out.tsv", out_root=None):
     return fails
 
 
+def clean_rows_loaded(tmp):
+    """coverage() は gate.load() が付ける _mol を見るので、実際に読み込んで渡す。"""
+    src = os.path.join(tmp, "_structure.tsv")
+    write(clean_rows(), src)
+    return gate.load(src)
+
+
 def ids(fails):
     """Check ids only. Continuation lines are indented and carry no id."""
     out = set()
@@ -88,6 +95,15 @@ def ids(fails):
 def main():
     tmp = tempfile.mkdtemp(prefix="extraction-gate-")
     results = []
+
+    # gate.py keeps three parallel lists by hand: CHECKS, the call sequence in
+    # run_checks, and coverage(). If any of them drifts, the tool reports a
+    # count that is not the count that ran. Assert they agree before anything
+    # else, because every number below is stated against CHECKS.
+    declared = [c[0] for c in gate.CHECKS]
+    reported = [c[0] for c in gate.coverage(clean_rows_loaded(tmp), None, True)]
+    results.append(("structure: CHECKS == coverage()", declared == reported,
+                    sorted(set(declared) ^ set(reported)), []))
 
     exercised = set()
 

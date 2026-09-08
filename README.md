@@ -37,8 +37,8 @@ without writing anything.
 python selftest.py
 ```
 
-Fourteen cases: a poisoned row per check, plus a clean set that has to stay
-green. The run also prints which checks no poison has exercised, counted from
+Fifteen cases: a poisoned row per check, a clean set that has to stay green,
+and one that asserts the tool's own lists of checks have not drifted apart. The run also prints which checks no poison has exercised, counted from
 the cases that ran rather than from a list kept by hand. False red announces
 itself. False green does not, so the only way to trust a check is to have
 watched it fail.
