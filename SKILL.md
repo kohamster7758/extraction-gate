@@ -13,7 +13,8 @@ of mine that reported success:
 1. A compound with the correct molecular formula and the wrong skeleton. The
    formula check passed because atoms were conserved while the ring was not.
 2. A double bond built as E where the paper had drawn Z. Same formula, same
-   skeleton, three orders of magnitude apart in potency.
+   skeleton, and the two differ in potency by more than three orders of
+   magnitude.
 3. Two diastereomers with their activities attached to the wrong structures.
    Nothing internal to the data could see this. It surfaced only against an
    external database, matched on the DOI.
