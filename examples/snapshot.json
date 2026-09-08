@@ -1,0 +1,14 @@
+{
+ "r1": {
+  "formula": "C7H11NO3",
+  "rings": "0:"
+ },
+ "r2": {
+  "formula": "C7H11NO3",
+  "rings": "0:"
+ },
+ "r3": {
+  "formula": "C6H12",
+  "rings": "1:6"
+ }
+}

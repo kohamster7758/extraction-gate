@@ -1,0 +1,4 @@
+row_id	doi	group	label	smiles	formula_reported	stereo_reported	geometry_reported	sequence	target	assay	readout	unit	value
+r1	10.1000/demo-a	seriesA	1	C/C=C/C(=O)N[C@@H](C)C(=O)O	C7H11NO3	7:S	E	AA-1	demo receptor	competition binding	IC50	nM	10
+r2	10.1000/demo-a	seriesA	2	C/C=C\C(=O)N[C@@H](C)C(=O)O	C7H11NO3	7:S	Z	AA-2	demo receptor	competition binding	IC50	nM	250
+r3	10.1000/demo-b	seriesB	4	C1CCCCC1	C6H12				demo receptor	competition binding	IC50	nM	900
