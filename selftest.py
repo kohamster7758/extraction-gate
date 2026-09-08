@@ -89,10 +89,14 @@ def main():
     tmp = tempfile.mkdtemp(prefix="extraction-gate-")
     results = []
 
+    exercised = set()
+
     def case(cid, rows, expect, snap=None, **kw):
         fails = run(rows, tmp, snap=snap, **kw)
         got = ids(fails)
         ok = (expect in got) if expect else (not got)
+        if expect:
+            exercised.add(expect)
         results.append((cid, ok, sorted(got), fails[:2]))
         return ok
 
@@ -184,11 +188,28 @@ def main():
             for s in sample:
                 print("          %s" % s)
     print()
-    print("  %d/%d" % (len(results) - bad, len(results)))
+    print("  %d/%d cases" % (len(results) - bad, len(results)))
+
+    # Which checks has a poison actually exercised? Counted from the cases that
+    # ran, not from a list kept by hand, because a list kept by hand drifts.
+    all_ids = [c[0] for c in gate.CHECKS]
+    unexercised = [c for c in all_ids if c not in exercised]
+    print("  poison covers %d of %d checks: %s"
+          % (len(exercised), len(all_ids), ",".join(i for i in all_ids if i in exercised)))
+    if unexercised:
+        # Declared, not assumed. A check nobody has watched fail is untested,
+        # and saying so is better than a summary line that implies otherwise.
+        print("  NO POISON EXERCISES: %s" % ",".join(unexercised))
+        for cid in unexercised:
+            why = dict(C9="needs the network, so it is not exercised offline").get(cid, "no case yet")
+            print("      %-4s %s" % (cid, why))
+
     if bad:
         print("  a check that cannot be seen to fail is not a check")
         return 1
-    print("  every check fired on its own poison, and none fired on the clean set")
+    print("  every case behaved, and nothing fired on the clean set.")
+    if unexercised:
+        print("  the checks listed above are untested here, not passing.")
     return 0
 
 

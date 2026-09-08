@@ -105,10 +105,16 @@ python selftest.py
 ```
 
 False red is visible the moment it happens. False green is never visible. So
-each check has its own poisoned row and the test asserts two things: that the
+each check gets its own poisoned row, and the test asserts two things: that the
 check fires on its poison, and that nothing fires on the clean set. If you
 change a check, run this. A check that has never been seen to fail is not a
 check.
+
+The run counts, from the cases that actually ran, which checks a poison has
+exercised, and prints the ones it has not. At present that is C9, which needs
+the network. It is listed as untested rather than folded into the pass count,
+because a summary line that implies full coverage is the same failure this
+whole skill is about.
 
 ## Adapting it
 
