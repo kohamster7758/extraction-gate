@@ -1,0 +1,16 @@
+pairs 823 rows, 615 after removing rows identical in every column
+  615 = 518 with a ratio + 97 without
+  >=2 positions  inclusive             groups  77  pairs  334  median    33.4  max   17400.0
+  >=2 positions  group-clean           groups  58  pairs  225  median    18.6  max    1625.4
+  >=2 positions  measurement-filtered  groups  64  pairs  253  median    21.2  max    1625.4
+  >=4 positions  inclusive             groups  47  pairs  263  median    80.0  max   17400.0
+  >=4 positions  group-clean           groups  30  pairs  159  median    56.1  max    1625.4
+  >=4 positions  measurement-filtered  groups  34  pairs  181  median    54.4  max    1625.4
+
+position-matched (seed 20260917, 2000 iterations)
+  the >=4 groups held at 4 positions   median 47.2  (observed 80.0)
+  all groups held at 2 positions       median 5.9
+  the >=4 groups held at 2 positions   median 6.2
+pooled draws of the same size from 518 ratios
+  >=4  observed 80.0  vs pooled 500.0 (95% of iterations 238.0 to 1216.7)
+  >=2  observed 33.4  vs pooled 175.4 (95% of iterations 89.8 to 382.7)

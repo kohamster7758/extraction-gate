@@ -1,0 +1,7 @@
+pmid	group_id	position	cmpd_A	cmpd_B	target	issue_flags
+41033976	RGG_STK3	Gly-Gly	STK3-1	STK3-2	G-quadruplex RNA (TLS/FUS RGG)	text_says_54.1_table_says_over_30
+2405159	Renin_P3P2	Phe-Gly	26 Boc-Phe-Gly-Sta-Leu-NHCH2Ph	31	renin	🔴 footnote_unresolved:monkey_plasma
+29732120	cycloRGDfV	Arg-Gly	6 cyclo(RGDfV)	9	integrin avb3	position_not_verified
+29732120	cycloRGDfV	Arg-Gly	6 cyclo(RGDfV)	9	integrin avb5	position_not_verified
+29732120	cycloRGDfV	Gly-Asp	6 cyclo(RGDfV)	10	integrin a5b1	position_not_verified
+29732120	cycloRGDfV	Gly-Asp	6 cyclo(RGDfV)	10	integrin avb5	position_not_verified

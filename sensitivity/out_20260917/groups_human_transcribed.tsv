@@ -1,0 +1,37 @@
+min_positions	group_id	target	assay	readout	unit_B	positions	pairs	spread
+2	AcBB714_NMe_scan	GRP receptor (cloned human, CHO-K1)	radioligand competition binding	Ki	N_methyl	8	8	3502.6
+2	BBN_GRPr	GRPr (PC3)	receptor saturation	Kd	triazole	4	4	16.2
+2	CRF_hCRF441	CRF receptor (rat pituitary)	ACTH release / cAMP	relative_potency	reduced_amide	4	4	419.8
+2	Compstatin_C3	complement C3 (classical pathway)	complement inhibition	IC50	N_methyl	9	9	110.1
+2	DynA18	DOPr (rat brain)	[3H]DADLE competition	Ki	reduced_amide	6	6	250.8
+2	DynA18	KOPr (GPB)	[3H]U-69593 competition	Ki	reduced_amide	7	7	17400.0
+2	DynA18	MOPr (rat brain)	[3H]DAGO competition	Ki	reduced_amide	7	7	11239.7
+2	DynA_1_11	KOPr (GPB)	[3H]U-69,593 competition	IC50	reduced_amide	5	5	47.2
+2	LeuEnk	DOPr	[3H]-deltorphin II competition	Ki	N_methyl	3	3	94.5
+2	MCmtii_scan	hMC1R	125I-NDP-a-MSH competition	IC50	N_methyl	5	5	137.3
+2	MCmtii_scan	hMC3R	125I-NDP-a-MSH competition	IC50	N_methyl	5	5	14.8
+2	MCmtii_scan	hMC4R	125I-NDP-a-MSH competition	IC50	N_methyl	5	5	218.5
+2	MCmtii_scan	hMC5R	125I-NDP-a-MSH competition	IC50	N_methyl	5	5	8.1
+2	PYY_NPY	NPY Y2R	functional receptor assay	EC50	ester	6	6	757.6
+2	ThioMHC_ELA	HLA-A2	HLA-A2 competition	IC50	thioamide	8	8	217.7
+2	ThioMHC_ELA	HLA-A2/TCR (T cell activation)	T cell activation	EC50	thioamide	8	8	577.7
+2	ThioMHC_GIL	HLA-A2/TCR (T cell activation)	T cell activation	EC50	thioamide	7	7	54.6
+2	cycloRGDfV	integrin aIIbb3	fibrinogen binding	IC50	N_methyl	2	2	6.0
+2	cycloRGDfV	integrin avb3	vitronectin binding	IC50	N_methyl	5	5	2413.8
+4	AcBB714_NMe_scan	GRP receptor (cloned human, CHO-K1)	radioligand competition binding	Ki	N_methyl	8	8	3502.6
+4	BBN_GRPr	GRPr (PC3)	receptor saturation	Kd	triazole	4	4	16.2
+4	CRF_hCRF441	CRF receptor (rat pituitary)	ACTH release / cAMP	relative_potency	reduced_amide	4	4	419.8
+4	Compstatin_C3	complement C3 (classical pathway)	complement inhibition	IC50	N_methyl	9	9	110.1
+4	DynA18	DOPr (rat brain)	[3H]DADLE competition	Ki	reduced_amide	6	6	250.8
+4	DynA18	KOPr (GPB)	[3H]U-69593 competition	Ki	reduced_amide	7	7	17400.0
+4	DynA18	MOPr (rat brain)	[3H]DAGO competition	Ki	reduced_amide	7	7	11239.7
+4	DynA_1_11	KOPr (GPB)	[3H]U-69,593 competition	IC50	reduced_amide	5	5	47.2
+4	MCmtii_scan	hMC1R	125I-NDP-a-MSH competition	IC50	N_methyl	5	5	137.3
+4	MCmtii_scan	hMC3R	125I-NDP-a-MSH competition	IC50	N_methyl	5	5	14.8
+4	MCmtii_scan	hMC4R	125I-NDP-a-MSH competition	IC50	N_methyl	5	5	218.5
+4	MCmtii_scan	hMC5R	125I-NDP-a-MSH competition	IC50	N_methyl	5	5	8.1
+4	PYY_NPY	NPY Y2R	functional receptor assay	EC50	ester	6	6	757.6
+4	ThioMHC_ELA	HLA-A2	HLA-A2 competition	IC50	thioamide	8	8	217.7
+4	ThioMHC_ELA	HLA-A2/TCR (T cell activation)	T cell activation	EC50	thioamide	8	8	577.7
+4	ThioMHC_GIL	HLA-A2/TCR (T cell activation)	T cell activation	EC50	thioamide	7	7	54.6
+4	cycloRGDfV	integrin avb3	vitronectin binding	IC50	N_methyl	5	5	2413.8

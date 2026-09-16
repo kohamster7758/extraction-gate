@@ -1,0 +1,16 @@
+measurements.tsv   rows  1360   distinct rows  1307   duplicate rows   53
+    x7   2405159 | 26 Boc-Phe-Gly-Sta-Leu-NHCH2Ph | renin | Phe-Gly
+    x6   1323677 | 4 (DMT-DPDPE-OMe) | MOPr (rat brain) | Gly3-Phe4
+    x6   1323677 | 4 (DMT-DPDPE-OMe) | DOPr (rat brain) | Gly3-Phe4
+    multiplicity: {2: 26, 4: 2, 6: 3, 7: 1}
+    distinct measured values 997 of 1360 rows; the parent rows are 557 and carry 195 of them
+pairs.tsv          rows  1067   distinct rows   859   duplicate rows  208
+    x7   2405159 | Renin_P3P2 | Phe-Gly | 31 | renin
+    x7   2405159 | Renin_P3P2 | Phe-Gly | 27 | renin
+    x7   2405159 | Renin_P3P2 | Phe-Gly | 32 | renin
+    multiplicity: {2: 52, 4: 8, 6: 18, 7: 7}
+    a duplicated measurement row multiplies here: a pair is built per matching row
+verification.tsv   rows  1360   projected groups   996   rows off against measurements    0
+    repeats here are a projection: this table drops the position column
+
+FAIL: a count taken from these tables is larger than the number of distinct records
