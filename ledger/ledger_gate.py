@@ -26,12 +26,25 @@ and one more, added 2026-09-17 on his suggestion:
                the source states a numeric total and it disagrees with the
                observed one. Neither value wins here. A person has to look.
 
+Precedence, once a denominator is itself disputed (Lutar, t348/10): `conflict`
+outranks `measured:open`. The size of a gap is not interpretable while the
+total it is measured against is in dispute, so the gap is still recorded but it
+does not decide the terminal state.
+
 Usage:  python ledger_gate.py [exclusions.tsv] [--receipt PATH]
+                              [--source-commit VALUE]
 
 The receipt is a small JSON record of the decision, written on any outcome, so
-that a caller does not have to scrape this output. Its shape is version 0 and
-not yet a stable contract: the corpus it describes is not public until
-1 November 2026 and the field names may still move before then.
+that a caller does not have to scrape this output. It declares itself as
+`extraction-gate-receipt/v0` with `schema_stability: experimental`, so a
+consumer can refuse a version it does not know: the corpus it describes is not
+public until 1 November 2026 and these field names may still move. They already
+have once, between the first receipt and this one.
+
+`--source-commit` records what the caller says was executed. It is kept as a
+claim, not as identity. `evaluator_sha256` is computed from the file that ran
+and is the authoritative one, because the two disagree exactly when the working
+tree has been edited.
 """
 import hashlib, io, json, os, sys, csv
 
@@ -75,7 +88,7 @@ def sha256_of(path):
     return h.hexdigest()
 
 
-def main(path, receipt_path=None):
+def main(path, receipt_path=None, source_commit=None):
     with io.open(path, encoding="utf-8", newline="") as fh:
         rows = [r for r in csv.DictReader(fh, delimiter="\t")]
     if not rows:
@@ -106,22 +119,28 @@ def main(path, receipt_path=None):
     decidable = counts.get(MEASURED_OK, 0) + counts.get(MEASURED_BAD, 0)
     print("\n  denominator recorded for %d of %d sources" % (decidable, n_sources))
 
-    if counts.get(MEASURED_BAD, 0) or counts.get(CONFLICT, 0):
-        decision, code = "FAIL", 1
+    if counts.get(CONFLICT, 0):
+        # A disputed denominator outranks an open one: the gap is not
+        # interpretable while the total it is measured against is in dispute.
+        decision, code, cause = "FAIL", 1, "claimed_total_conflict"
+        why = "a stated total disagrees with the observed one"
+    elif counts.get(MEASURED_BAD, 0):
+        decision, code, cause = "FAIL", 1, "identity_open"
         why = "the identity does not close where it could be evaluated"
     elif counts.get(REPORTED, 0) or counts.get(UNAVAILABLE, 0):
-        decision, code = "REVIEW", 2
+        decision, code, cause = "REVIEW", 2, "unresolved"
         why = "nothing failed, and not everything could be checked"
     else:
-        decision, code = "PASS", 0
+        decision, code, cause = "PASS", 0, "none"
         why = ""
     print("\n%s%s" % (decision, ": " + why if why else ""))
 
     if receipt_path:
         receipt = {
-            "receipt_version": RECEIPT_VERSION,
-            "receipt_stability": "unstable until the corpus release",
+            "schema": "extraction-gate-receipt/v%d" % RECEIPT_VERSION,
+            "schema_stability": "experimental",
             "decision": decision,
+            "terminal_cause": cause,
             "write_authorized": decision == "PASS",
             "sources_total": n_sources,
             "measured_closing": counts.get(MEASURED_OK, 0),
@@ -133,7 +152,12 @@ def main(path, receipt_path=None):
             "unaccounted_rows": unaccounted,
             "ledger_sha256": sha256_of(path),
             "evaluator_sha256": sha256_of(os.path.abspath(__file__)),
+            "evaluator_identity_authority": "evaluator_sha256",
         }
+        if source_commit:
+            receipt["source_commit"] = source_commit
+            receipt["source_commit_authority"] = "claim by the caller, not verified here"
+            receipt["working_tree_state"] = "unavailable"
         with io.open(receipt_path, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(receipt, fh, indent=2, sort_keys=True)
             fh.write("\n")
@@ -143,10 +167,16 @@ def main(path, receipt_path=None):
 
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:]]
-    receipt = None
-    if "--receipt" in args:
-        i = args.index("--receipt")
-        receipt = args[i + 1]
-        del args[i:i + 2]
+
+    def take(flag):
+        if flag in args:
+            i = args.index(flag)
+            v = args[i + 1]
+            del args[i:i + 2]
+            return v
+        return None
+
+    receipt = take("--receipt")
+    commit = take("--source-commit")
     here = os.path.dirname(os.path.abspath(__file__))
-    sys.exit(main(args[0] if args else os.path.join(here, "exclusions.tsv"), receipt))
+    sys.exit(main(args[0] if args else os.path.join(here, "exclusions.tsv"), receipt, commit))

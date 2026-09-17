@@ -18,7 +18,8 @@ Until (2) holds for every case, the honest state is not PASS. It is
 PASS_WITH_INCOMPLETE_MUTATION_COVERAGE, and this file prints that, names the
 cases nothing has killed, and exits 0 only because the code under test is
 correct today. The four mutants below were proposed by Stephen Lutar on the
-forum thread after he ran the gate himself.
+forum thread after he ran the gate himself, and the narrow eighth one after he
+read the coverage split.
 """
 import sys, os
 
@@ -131,6 +132,17 @@ def stated_total_is_ignored(row):
     return classify(r)
 
 
+def claim_over_empty_becomes_unavailable(row):
+    """Narrow mutant (Lutar, t348/10): invert only the branch where the
+    denominator is absent and a completeness claim is present, leaving the
+    closure arithmetic and every other branch alone. Written to find out whether
+    that path can be killed for its own reason or only by a coarse mutant."""
+    state, gap = classify(row)
+    if state == REPORTED:
+        return UNAVAILABLE, gap
+    return state, gap
+
+
 # each poison names the invariant it is written to break
 POISONS = [
     ("empty denominator read as zero", read_empty_as_zero, "empty_is_not_zero"),
@@ -140,6 +152,8 @@ POISONS = [
     ("the unaccounted count is wrong", gap_is_wrong, "gap_is_exact"),
     ("a completeness claim overrides the count", claim_overrides_count, "claim_cannot_override"),
     ("a stated total is ignored", stated_total_is_ignored, "stated_total_conflicts"),
+    ("a claim over an absent denominator reads as unavailable",
+     claim_over_empty_becomes_unavailable, "empty_claim_is_reported"),
 ]
 
 # Coverage is counted twice on purpose. A mutant that kills five cases at once is

@@ -60,7 +60,10 @@ accident. The four states (measured, reported, unknown, unavailable) follow
 Stephen Lutar's proposal in that thread. On the current ledger the gate fails,
 and the selftest says which of its own cases it has watched go red, separating
 the ones killed by the mutant written for them from the ones a coarse mutant
-happened to kill as well. `--receipt PATH` writes the decision as JSON so a
+happened to kill as well. Aggregate mutation counts can overstate invariant
+coverage when one coarse mutant breaks a shared evaluator path, which is why
+`mutation_coverage_state` is taken from the narrower count (the observation is
+Stephen Lutar's, on the thread). `--receipt PATH` writes the decision as JSON so a
 caller does not have to read this output; its shape is version 0 and will move
 before the corpus release.
 
