@@ -12,21 +12,24 @@ import io, os, csv
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 FIELDS = ["pmid", "source_table", "total_rows", "extracted", "excluded",
-          "claim", "reason"]
+          "claim", "claimed_total_rows", "reason"]
 
 ROWS = [
-    # pmid, table, total, extracted, excluded, claim, reason
-    ("16468724", "Table 1", "7", "7", "0", "complete", ""),
-    ("22352868", "Table 1", "6", "6", "0", "complete", ""),
-    ("19007202", "Table 2", "11", "7", "0", "",
+    # pmid, table, total, extracted, excluded, claim, claimed_total_rows, reason
+    # claimed_total_rows is empty everywhere: no source in this set states a numeric total.
+    # The column exists so that a disagreement between a stated total and the observed
+    # one has somewhere to live instead of being resolved silently.
+    ("16468724", "Table 1", "7", "7", "0", "complete", "", ""),
+    ("22352868", "Table 1", "6", "6", "0", "complete", "", ""),
+    ("19007202", "Table 2", "11", "7", "0", "", "",
      "rows 21, 22, 23 and 26 are in neither the corpus nor this ledger"),
-    ("25247671", "Table 3", "6", "5", "0", "",
+    ("25247671", "Table 3", "6", "5", "0", "", "",
      "row 10c, the alpha-beta-unsaturated analogue, is in neither"),
-    ("1323677", "Tables I and II", "", "7", "0", "complete",
+    ("1323677", "Tables I and II", "", "7", "0", "complete", "",
      "read as complete; the row count was never written down"),
-    ("1323677", "Tables III and IV", "0", "0", "0", "complete",
+    ("1323677", "Tables III and IV", "0", "0", "0", "complete", "",
      "parent compounds only, no isostere present, nothing to take"),
-    ("2405159", "activity tables", "", "8", "", "",
+    ("2405159", "activity tables", "", "8", "", "", "",
      "one representative per class was taken; the row count was never written down"),
 ]
 

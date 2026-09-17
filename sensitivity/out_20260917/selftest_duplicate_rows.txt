@@ -1,0 +1,8 @@
+ok   a projection that repeats rows is not corrupt              exit 0 (wanted 0)
+ok   an exact duplicate measurement row fails                   exit 1 (wanted 1)
+ok   an exact duplicate pair row fails                          exit 1 (wanted 1)
+ok   a clean set passes                                         exit 0 (wanted 0)
+
+checks_total: 4
+checks_passing: 4
+negative_fixture: a projection repeating rows must not fail

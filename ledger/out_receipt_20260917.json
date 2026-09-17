@@ -1,0 +1,16 @@
+{
+  "claimed_total_conflicts": 0,
+  "decision": "FAIL",
+  "denominator_recorded": 5,
+  "evaluator_sha256": "cf1b860e10661ef2f56b46b202f9db8b7c31bd398ba07557f243bbca89904762",
+  "ledger_sha256": "e75df00679a25c56f1a91d86e3a241f2956de1e189d66a091ec6a7a004352995",
+  "measured_closing": 3,
+  "measured_open": 2,
+  "receipt_stability": "unstable until the corpus release",
+  "receipt_version": 0,
+  "reported": 1,
+  "sources_total": 7,
+  "unaccounted_rows": 5,
+  "unavailable": 1,
+  "write_authorized": false
+}

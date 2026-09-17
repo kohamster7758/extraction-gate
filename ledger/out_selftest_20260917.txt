@@ -1,0 +1,33 @@
+ok   empty denominator must never close                                     -> unavailable
+ok   empty denominator with a completeness claim is reported, not measured  -> reported
+ok   a real zero table does close                                           -> measured:closes
+ok   a closing table closes                                                 -> measured:closes
+ok   a short table is open, by the right amount                             -> measured:open
+ok   exclusions count toward the identity                                   -> measured:closes
+ok   a completeness claim cannot rescue a short table                       -> measured:open
+ok   a stated total that disagrees is neither a pass nor a failure          -> conflict:claimed_total_disagrees
+
+poison: empty denominator read as zero             killed 2 case(s)  <- coarse: also kills 1 other case(s)
+poison: exclusions dropped                         killed 1 case(s)
+poison: a recorded zero read as unavailable        killed 1 case(s)
+poison: closure compared off by one                killed 5 case(s)  <- coarse: also kills 4 other case(s)
+poison: the unaccounted count is wrong             killed 2 case(s)  <- coarse: also kills 1 other case(s)
+poison: a completeness claim overrides the count   killed 1 case(s)
+poison: a stated total is ignored                  killed 1 case(s)
+
+checks_total: 8
+checks_passing: 8
+mutation_verified_by_own_mutant: 7
+mutation_verified_by_any_mutant: 8
+mutation_untested: 0
+mutation_coverage_state: INCOMPLETE
+state: PASS_WITH_INCOMPLETE_MUTATION_COVERAGE
+
+  invariant_empty_is_not_zero:       VERIFIED
+  invariant_empty_claim_is_reported: KILLED_ONLY_BY_A_COARSE_MUTANT
+  invariant_real_zero_can_close:     VERIFIED
+  invariant_closure_is_equality:     VERIFIED
+  invariant_gap_is_exact:            VERIFIED
+  invariant_exclusions_are_counted:  VERIFIED
+  invariant_claim_cannot_override:   VERIFIED
+  invariant_stated_total_conflicts:  VERIFIED

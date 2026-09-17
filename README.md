@@ -58,7 +58,16 @@ or REVIEW. REVIEW exists so that a denominator nobody wrote down is reported
 as `unavailable` rather than as zero, which would close the identity by
 accident. The four states (measured, reported, unknown, unavailable) follow
 Stephen Lutar's proposal in that thread. On the current ledger the gate fails,
-and the selftest says which of its own cases it has watched go red.
+and the selftest says which of its own cases it has watched go red, separating
+the ones killed by the mutant written for them from the ones a coarse mutant
+happened to kill as well. `--receipt PATH` writes the decision as JSON so a
+caller does not have to read this output; its shape is version 0 and will move
+before the corpus release.
+
+`sensitivity/` holds the three evidence cuts, the two draw-matched baselines,
+the duplicate-row gate and its fixtures, including the negative one: a
+projection that repeats rows because it drops an identity column must not be
+reported as corrupt.
 
 ## Licence
 
