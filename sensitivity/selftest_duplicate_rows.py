@@ -50,6 +50,23 @@ def project(measurements):
     return out
 
 
+def run_dir(name, build, want_exit):
+    """Hand the check a directory built by `build`, which may write nothing."""
+    d = tempfile.mkdtemp(prefix="dupfix_")
+    try:
+        build(d)
+        p = subprocess.run([sys.executable, CHECK, "--dataset", d],
+                           capture_output=True, text=True)
+        ok = p.returncode == want_exit
+        print("%-4s %-58s exit %d (wanted %d)" % ("ok" if ok else "RED", name,
+                                                  p.returncode, want_exit))
+        if not ok:
+            print(p.stdout)
+        return ok
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 def run_case(name, measurements, pairs, want_exit):
     d = tempfile.mkdtemp(prefix="dupfix_")
     try:
@@ -87,8 +104,17 @@ results.append(run_case("an exact duplicate pair row fails",
                         scan, scan_pairs + [pair("1", "G", "A-B", "parent", "analogue 1", "T")], 1))
 results.append(run_case("a clean set passes", scan, scan_pairs, 0))
 
+# Added 2026-09-21. Every fixture above hands the check all three tables, which
+# is why none of them could see the state the check was actually in: with no
+# tables to read it printed PASS and returned 0. These two fixtures are the ones
+# that fail if that ever comes back.
+results.append(run_dir("no tables at all must not pass", lambda d: None, 2))
+results.append(run_dir("a header with no rows must not pass",
+                       lambda d: write(os.path.join(d, "pairs.tsv"), PAIR_COLS, []), 2))
+
 print("")
 print("checks_total: %d" % len(results))
 print("checks_passing: %d" % sum(1 for x in results if x))
 print("negative_fixture: a projection repeating rows must not fail")
+print("negative_fixture: an absent table must not read as a clean one")
 sys.exit(0 if all(results) else 1)

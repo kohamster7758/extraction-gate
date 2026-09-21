@@ -24,9 +24,19 @@ instead of for uniqueness. The first version of this script reported those
 repeats as a failure, which was a false alarm, and the check was rewritten
 after looking at what distinguished the rows upstream.
 
+A table that is not there is the other way this check can be wrong, and it is
+the way that does not announce itself. Until 2026-09-21 every block below was
+guarded by os.path.exists, nothing else ran, and the script printed PASS and
+returned 0. Run from its own directory, which is where the repository puts it,
+it read no tables at all and reported that they were unique. An empty input had
+resolved to zero duplicates instead of to nothing measured. So the absence of
+the tables is now a third state: it is not a pass, and the caller is told which
+tables were read.
+
 Usage:  python duplicate_rows.py [--dataset DIR]
 
-Exit 0 when the tables that must be unique are unique, 1 otherwise.
+Exit 0 when the tables that must be unique were read and are unique, 1 when a
+table holds the same row twice, 2 when there was nothing to check.
 """
 import argparse, collections, csv, io, os, sys
 
@@ -62,8 +72,17 @@ def main():
     a = ap.parse_args()
     here = lambda n: os.path.join(a.dataset, n)
     failed = 0
+    read, missing, empty = [], [], []
 
-    m = rows_of(here("measurements.tsv")) if os.path.exists(here("measurements.tsv")) else []
+    for name in ("measurements.tsv", "pairs.tsv", "verification.tsv"):
+        if not os.path.exists(here(name)):
+            missing.append(name)
+        elif not rows_of(here(name)):
+            empty.append(name)
+        else:
+            read.append(name)
+
+    m = rows_of(here("measurements.tsv")) if "measurements.tsv" in read else []
     if m:
         failed += bool(show("measurements.tsv", m, ("pmid", "compound", "target", "position")))
         key = lambda r: tuple(r.get(c, "") for c in VALUE_KEY)
@@ -72,13 +91,13 @@ def main():
         print("    distinct measured values %d of %d rows; the parent rows are %d and carry %d of them"
               % (vals, len(m), len(parents), len({key(r) for r in parents})))
 
-    p = rows_of(here("pairs.tsv")) if os.path.exists(here("pairs.tsv")) else []
+    p = rows_of(here("pairs.tsv")) if "pairs.tsv" in read else []
     if p:
         failed += bool(show("pairs.tsv", p, ("pmid", "group_id", "position", "cmpd_B", "target")))
         print("    a duplicated measurement row multiplies here: a pair is built per matching row")
 
     vpath = here("verification.tsv")
-    if os.path.exists(vpath) and m:
+    if "verification.tsv" in read and m:
         v = rows_of(vpath)
         proj = ("pmid", "compound", "target", "value", "unit")
         vc = collections.Counter(tuple(r.get(c, "") for c in proj) for r in v)
@@ -92,9 +111,20 @@ def main():
             for k in off[:3]:
                 print("    %s: verification %d, measurements %d" % (" | ".join(k), vc.get(k, 0), mc.get(k, 0)))
 
+    print("")
+    print("tables read      %s" % (", ".join(read) if read else "none"))
+    if empty:
+        print("tables empty     %s" % ", ".join(empty))
+    if missing:
+        print("tables missing   %s" % ", ".join(missing))
+
     if failed:
         print("\nFAIL: a count taken from these tables is larger than the number of distinct records")
         return 1
+    if not read:
+        print("\nABSTAIN: nothing was read, so nothing is known about uniqueness."
+              "\n         Pass --dataset DIR. An absent table is not a clean one.")
+        return 2
     print("\nPASS")
     return 0
 

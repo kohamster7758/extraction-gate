@@ -28,7 +28,21 @@ measurement table instead of for uniqueness.
 python duplicate_rows.py --dataset DIR
 ```
 
-Exit 0 when the tables that must be unique are unique, 1 otherwise.
+Exit 0 when the tables that must be unique were read and are unique, 1 when a
+table holds the same row twice, 2 when there was nothing to read.
+
+That third state was added on 2026-09-21, because until then there were only
+two and the missing one was load-bearing. Each table was guarded by an
+existence test, so a directory holding none of them ran no check at all and the
+script printed `PASS` and returned 0. Run with no `--dataset`, which defaults to
+the working directory and is the obvious thing to do after `cd sensitivity`, it
+reported that tables it had never opened were unique. An empty input had
+resolved to zero duplicates rather than to nothing measured.
+
+The four fixtures in `selftest_duplicate_rows.py` could not see it: every one of
+them wrote all three tables before calling the check, so the path where a table
+is absent was never executed. Two fixtures now cover it, and the run prints
+which tables it read.
 
 ## sensitivity_cuts.py
 
