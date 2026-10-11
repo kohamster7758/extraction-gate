@@ -309,9 +309,9 @@ def check_completeness(rows, snap, expect=None):
 
 
 def check_chembl(rows, timeout=20):
-    """C9. Check whether each structure is among those ChEMBL holds for the DOI, without comparing activity values.
+    """C9. Check that each structure is among those ChEMBL holds for the DOI.
 
-    Keyed on the DOI, not the compound name.
+    Activity values are not compared. Keyed on the DOI, not the compound name.
     """
     import urllib.parse
     import urllib.request
