@@ -309,10 +309,9 @@ def check_completeness(rows, snap, expect=None):
 
 
 def check_chembl(rows, timeout=20):
-    """C9. The one check that can see a swap between two structures in the same paper.
+    """C9. Check whether each structure is among those ChEMBL holds for the DOI, without comparing activity values.
 
-    Nothing internal to an extraction can catch activities attached to the wrong
-    member of a diastereomer pair. Keyed on the DOI, not the compound name.
+    Keyed on the DOI, not the compound name.
     """
     import urllib.parse
     import urllib.request
