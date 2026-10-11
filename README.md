@@ -18,18 +18,119 @@ Copy this directory into your skills folder:
 - Claude Science: `~/.claude-science/skills/extraction-gate/`
 - Claude Code: `~/.claude/skills/extraction-gate/`
 
-Needs Python and RDKit. `conda install -c conda-forge rdkit`.
+Needs Python and RDKit. `conda install -c conda-forge rdkit`, or
+`pip install rdkit`. Nothing else is imported.
 
-## Try it
+## Try it in five minutes
+
+The script runs from a clone and does not need the skills folder. Make the
+output directory first; `gate.py` does not create it, and C1 refuses the run
+when it is missing, which is what C1 is for.
 
 ```bash
-python gate.py examples/rows.tsv        --out build/clean.tsv --out-root build --write-snapshot examples/snapshot.json
-python gate.py examples/rows_broken.tsv --out build/clean.tsv --out-root build --snapshot examples/snapshot.json
+mkdir build
+python gate.py examples/rows.tsv        --out build/clean.tsv --out-root build --write-snapshot build/snapshot.json
+python gate.py examples/rows_broken.tsv --out build/clean.tsv --out-root build --snapshot build/snapshot.json
 ```
 
-The first writes three rows. The second is the same file with a plausible
-error planted in each row, and it refuses on eight of the twelve checks
-without writing anything.
+The first run writes three rows, exits 0, and ends with
+
+```
+  3 check(s) had nothing to work with: C3, C7, C9
+  snapshot written to build/snapshot.json
+  PASSED all checks, 3 rows written and read back.
+```
+
+C3 and C7 compare with a run you have already accepted, so on a first run
+they have nothing to look at, and C9 is off without `--chembl`. The snapshot
+is the accepted state of those three rows. `examples/snapshot.json` is a copy
+of it.
+
+The second file is the same rows with a plausible error planted in each, and
+three more that collide with them. Against the snapshot it is refused on eight
+of the twelve checks, exits 1, and writes nothing:
+
+```
+  REFUSED, 10 finding(s). Nothing was written.
+    C2 r5: formula C6H12 does not match the paper's C9H20
+    C4 r2: CIP labels 7:R do not match the paper's 7:S
+    C4 r4: CIP labels 7:R do not match the paper's 7:S
+    C5 10.1000/demo-a / seriesA: one structure carries 2 labels ['2', '3']
+    C6 10.1000/demo-a: sequence AA-1 resolves to 2 different structures
+    C7 r3: ring profile changed 1:6 to 1:5 while the formula stayed the same
+    C8 r1: the paper draws E and no double bond is assigned (1 unassigned)
+    C10: 1 measurement keys are stored more than once, 1 rows in excess. Collapse them before counting repeats.
+          10.1000/demo-b | 4 | demo receptor | competition binding stored 2 times
+    C11 label 1 is 2 different molecules across 2 reports. Do not key a cross-report match on it.
+```
+
+`build/clean.tsv` still holds the three rows from the first run. A step that
+reads it after the second run gets the old rows, and the exit code is the only
+thing that says so. That is the stale-file failure above, in miniature.
+
+Then watch the checker itself:
+
+```bash
+python selftest.py
+python selftest_baseline.py
+```
+
+Both exit 0. The first ends with `16/16 cases` and `poison covers 11 of 12
+checks`, and names C9 as the check no poison exercises offline. The second
+ends with `checks_passing: 22`. What those lines mean is under "Check the
+checker" below.
+
+## What it cannot check
+
+- It does not read the paper. `formula_reported`, `stereo_reported` and
+  `geometry_reported` are what someone typed from the source, and the gate
+  compares the structure with them. A wrong transcription there is a wrong
+  reference, and the gate cannot tell.
+- `value`, `unit`, `target`, `assay` and `readout` are compared with nothing.
+  They are a key for C10 and nothing more. A correct structure carrying the
+  wrong IC50 passes.
+- A SMILES that does not parse is refused only by a check that has a column to
+  compare it with. With the five required columns alone, a row whose `smiles`
+  reads `not_a_smiles` passes and is written.
+- C9 needs the network and is off by default. It asks whether each structure
+  is among the ones ChEMBL holds for the DOI. A DOI ChEMBL has not curated
+  passes in silence, and the check does not compare activity values.
+- C3, C7 and C12 compare with a snapshot from a run you accepted. On the
+  first run they have nothing to look at, and the report says so.
+- C5, C6 and C11 compare canonical SMILES after the largest fragment is kept.
+  A salt and its free ion are one molecule. A neutral acid and its anion, or
+  two tautomers, are two.
+- C8 looks at acyclic C=C bonds only, and accepts the row when any of them
+  carries the printed letter. A double bond in a ring, or to a heteroatom, is
+  not seen.
+
+The gate says that the rows agree with what was typed next to them, with each
+other, with the last run you accepted, and, with `--chembl`, with what ChEMBL
+holds for the DOI. It does not say that the extracted values are right.
+
+## Using it on your own table
+
+The input is a TSV with five required columns: `row_id`, `doi`, `group`,
+`label` and `smiles`. `group` is the series a printed label is unique within,
+usually one table of one paper. The optional columns each switch on the checks
+that read them: `formula_reported`, `stereo_reported`, `geometry_reported`,
+`sequence`, and `target` `assay` `readout` `unit` `value`. `stereo_reported`
+takes CIP labels in the form `7:S`, where 7 is the position of the atom in
+your SMILES, counted from 1, and not the locant in the paper.
+`geometry_reported` takes one letter, `E` or `Z`. A blank column skips its
+checks for that row, and the report lists the checks that had nothing to work
+with, so an empty column does not read as a pass. Keep `row_id` stable between
+runs, because the snapshot is keyed on it. `examples/rows.tsv` has every
+column filled.
+
+If your corpus has no structures, C2 through C8 and C11 have nothing to work
+with, and what is left is C1, C10 and C12, which do not depend on the field.
+Each check is one function in `gate.py`, named in `CHECKS`, called in
+`run_checks` and counted in `coverage()`. `selftest.py` asserts that `CHECKS`
+and `coverage()` list the same checks and that each name in `CHECKS` finds a
+`check_` function. A check that `run_checks` never calls shows up as a
+`BLIND_SPOT` when its poison is run. Give a new check its own poisoned row in
+`selftest.py` before you count on it.
 
 ## Check the checker
 
