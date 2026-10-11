@@ -21,8 +21,6 @@ Assertions are made against a reference run of the unbroken suite taken in the
 same process, so adding a poison to selftest.py does not turn this file red.
 Only the fixtures that existed when this file was written are named.
 
-Passing the baseline establishes only that the verifier accepts the declared native valid fixture. It does not establish that every mutation will be detected.
-
 Usage:  python selftest_baseline.py
 """
 import contextlib

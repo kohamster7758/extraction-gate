@@ -129,12 +129,6 @@ counts as a detection. A declared poison whose check has nothing to look at
 keeps the run from passing: unless something failed, it ends in `REVIEW`
 (exit 2). `selftest_baseline.py` breaks the baseline and the checker on purpose
 and asserts that this is what is reported.
-Here a mutation is a poisoned row, a reverted bug is a poison that puts back a
-failure a check exists to stop, and the sensitivity figure is the coverage line.
-
-Passing the baseline establishes only that the verifier accepts the declared native valid fixture. It does not establish that every mutation will be detected.
-
-Detecting one reverted bug establishes sensitivity to that specific regression. It does not establish complete verifier coverage.
 
 ## Adapting it
 

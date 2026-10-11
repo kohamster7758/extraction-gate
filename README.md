@@ -53,7 +53,7 @@ printed. The run reports `INVALID_BASELINE`, names the fixture, shows what was
 expected and what happened, and exits 1 with this line:
 
 ```
-No sensitivity figure was produced because the verifier failed its accepting baseline.
+No sensitivity figure was produced because the checker failed its accepting baseline.
 ```
 
 A poison that its check does not catch is reported as `BLIND_SPOT`, with what
@@ -69,8 +69,6 @@ ends in `REVIEW` and exits 2, as the ledger does for a source it cannot decide.
 A poison declared skipped, as C9 is, is not held against the run, and a run in
 which no poison ran prints no figure at all. The coverage line counts checks;
 the `*_mutations` counts under it count poisons.
-Here a mutation is a poisoned row, a reverted bug is a poison that puts back a
-failure a check exists to stop, and the sensitivity figure is the coverage line.
 
 `--receipt PATH` writes the result as JSON whatever the decision: `PASS` with
 `terminal_cause` `none` (exit 0); `FAIL` with `INVALID_BASELINE`, `BLIND_SPOT`
@@ -79,10 +77,6 @@ Without a figure it carries no counts and no lists of what was caught, rather
 than zeros. Like the ledger receipt, its shape is version 0 and experimental.
 `selftest_baseline.py` breaks the clean set and the checker in memory and
 asserts all of this.
-
-Passing the baseline establishes only that the verifier accepts the declared native valid fixture. It does not establish that every mutation will be detected.
-
-Detecting one reverted bug establishes sensitivity to that specific regression. It does not establish complete verifier coverage.
 
 ## The rows you did not take
 
