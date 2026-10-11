@@ -68,8 +68,9 @@ against it, so structure drift between runs is caught even when the current
 rows are internally consistent. Write a new snapshot only from a run you have
 accepted.
 
-`--chembl` is off by default because it needs the network. It is the only
-check that can see failure 3 above, so run it at least once per corpus.
+`--chembl` is off by default because it needs the network. It asks whether
+each structure is among the ones ChEMBL holds for the DOI, and it does not
+compare activity values. Run it at least once per corpus.
 
 ## The checks
 
@@ -83,7 +84,7 @@ check that can see failure 3 above, so run it at least once per corpus.
 | C6 sequence collisions | one sequence resolving to two structures in one paper |
 | C7 ring skeleton | atoms conserved, ring not |
 | C8 double bond geometry | a geometry the paper drew, left unassigned or built the other way |
-| C9 external cross-check | activities attached to the wrong member of a pair |
+| C9 external cross-check | a structure that ChEMBL does not hold for the DOI |
 | C10 exact duplicates | the same measurement stored more than once |
 | C11 label identity | a printed label treated as a chemical identity |
 | C12 completeness | a row that was there last time has quietly gone missing |

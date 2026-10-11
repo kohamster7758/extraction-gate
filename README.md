@@ -19,7 +19,9 @@ Copy this directory into your skills folder:
 - Claude Code: `~/.claude/skills/extraction-gate/`
 
 Needs Python and RDKit. `conda install -c conda-forge rdkit`, or
-`pip install rdkit`. Nothing else is imported.
+`python -m pip install rdkit`. Nothing else is imported. Run the commands
+below from the repository directory, and if your Python command is `python3`,
+use that in place of `python`.
 
 ## Try it in five minutes
 
@@ -95,8 +97,11 @@ checker" below.
 - C9 needs the network and is off by default. It asks whether each structure
   is among the ones ChEMBL holds for the DOI. A DOI ChEMBL has not curated
   passes in silence, and the check does not compare activity values.
-- C3, C7 and C12 compare with a snapshot from a run you accepted. On the
-  first run they have nothing to look at, and the report says so.
+- C3 and C7 compare with a snapshot from a run you accepted. On the first run
+  they have nothing to look at, and the report says so. C12 runs without one:
+  a repeated `row_id`, or a count that differs from `--expect`, is refused on
+  the first run too. Only its third part, a row the snapshot holds that is not
+  here now, needs the snapshot.
 - C5, C6 and C11 compare canonical SMILES after the largest fragment is kept.
   A salt and its free ion are one molecule. A neutral acid and its anion, or
   two tautomers, are two.
