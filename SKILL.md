@@ -102,6 +102,7 @@ from the accepted snapshot to what is here now.
 
 ```bash
 python selftest.py
+python selftest_baseline.py
 ```
 
 False red is visible the moment it happens. False green is never visible. So
@@ -115,6 +116,25 @@ exercised, and prints the ones it has not. At present that is C9, which needs
 the network. It is listed as untested rather than folded into the pass count,
 because a summary line that implies full coverage is the same failure this
 whole skill is about.
+
+The clean set is the accepting baseline, and it runs before any poison, as it is
+and against its own accepted snapshot. A check that fires on rows it should
+accept also "catches" its own poison, so a figure taken after a red baseline
+cannot be trusted. If `gate.py` would refuse the clean set, no poison is run, no
+coverage figure is printed, and the run reports `INVALID_BASELINE` and exits 1.
+A poison that its check does not catch is reported as `BLIND_SPOT` and is not
+counted as a detection. Each fixture is reported as `CHECKED`, `SKIPPED` or
+`NOT_APPLICABLE`, and only a checked poison that its own check was seen to catch
+counts as a detection. A declared poison whose check has nothing to look at
+keeps the run from passing: unless something failed, it ends in `REVIEW`
+(exit 2). `selftest_baseline.py` breaks the baseline and the checker on purpose
+and asserts that this is what is reported.
+Here a mutation is a poisoned row, a reverted bug is a poison that puts back a
+failure a check exists to stop, and the sensitivity figure is the coverage line.
+
+Passing the baseline establishes only that the verifier accepts the declared native valid fixture. It does not establish that every mutation will be detected.
+
+Detecting one reverted bug establishes sensitivity to that specific regression. It does not establish complete verifier coverage.
 
 ## Adapting it
 
