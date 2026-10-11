@@ -136,14 +136,19 @@ def rows_for(cid, rows, tmp, snap=None):
     return None, len(loaded)
 
 
+def function_name(cid):
+    """The name looked for in gate: check_ and the check's name in CHECKS."""
+    name = dict((c, n) for c, n, _w in gate.CHECKS).get(cid, "")
+    return "check_" + name.replace(" ", "_").replace("-", "_")
+
+
 def check_function(cid):
     """The name of gate's function for check `cid`, found from CHECKS, or None.
 
     C9's function is check_chembl, which does not follow the naming, so for C9
     this is None and whether it ran is recorded as unknown rather than guessed.
     """
-    name = dict((c, n) for c, n, _w in gate.CHECKS).get(cid, "")
-    fn = "check_" + name.replace(" ", "_").replace("-", "_")
+    fn = function_name(cid)
     return fn if callable(getattr(gate, fn, None)) else None
 
 
@@ -223,6 +228,15 @@ def run_cases(a, tmp):
         results.append(("structure: CHECKS == coverage()", False, [],
                         masked(["raised %s: %s" % (type(exc).__name__, exc)])))
 
+    # run_watching finds a check's function by the name CHECKS gives it. A name
+    # that finds no function leaves every poison aimed at that check
+    # unobserved, and a detection nobody saw is not a detection, so the name is
+    # a failure stated here. C9 is the one exception: its function is
+    # check_chembl, and it is skipped offline.
+    unresolved = [c for c in declared if c != "C9" and check_function(c) is None]
+    results.append(("structure: CHECKS name gate functions", not unresolved, unresolved,
+                    ["%s: gate.%s is not a function" % (c, function_name(c)) for c in unresolved]))
+
     # green: nothing fires on a clean set. This is the accepting baseline, run
     # before any poison and unmodified: once as it is, and once against its own
     # accepted snapshot, so that the checks which only look at a snapshot (C3,
@@ -286,8 +300,9 @@ def run_cases(a, tmp):
             return None
         fails, called = run_watching(expect, rows, tmp, snap=snap, **kw)
         got = ids(fails)
-        # Caught means the declared check fired, and was seen to run.
-        ok = expect in got and called is not False
+        # Caught means the declared check fired, and was seen to run. A check
+        # whose function could not be found was not seen, and does not count.
+        ok = expect in got and called is True
         rec.update(execution_state=CHECKED, actual_result=fired(got), diagnostics=masked(fails),
                    detecting_check_executed=called, detecting_check_rows=k, fixture_rows=n)
         if ok:
@@ -377,7 +392,7 @@ def run_cases(a, tmp):
     poisons = [f for f in fixtures if f["detecting_check"]]
     executed = [f for f in poisons if f["execution_state"] == CHECKED]
     not_applicable = [f for f in poisons if f["execution_state"] == NOT_APPLICABLE]
-    structure_ok = results[0][1]
+    structure_ok = results[0][1] and results[1][1]
     # A figure needs an accepted baseline and at least one poison that ran.
     figure = baseline_ok and bool(executed)
 

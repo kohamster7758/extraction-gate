@@ -14,7 +14,7 @@ Nothing in gate.py is weakened and no tracked file is changed.
   checker broken     a check fires on every row, raises, or refuses without an id
   blind spot         a check never fires, fires the wrong way, or is never called
   not applicable     a check has no rows to look at, here or in the baseline
-  structure drift    CHECKS and coverage() disagree
+  structure drift    CHECKS and coverage() disagree, or a check's name finds no function
   receipt handling   a crash, a missing directory, a directory given as the path
 
 Assertions are made against a reference run of the unbroken suite taken in the
@@ -595,6 +595,33 @@ def coverage_drops_a_check():
     return bad, out
 
 
+def check_renamed():
+    # CHECKS gives C4 a name that finds no function in gate. The watcher then
+    # has nothing to wrap, so whether C4 ran cannot be seen, and its poison
+    # used to be counted as caught. The name is a structure failure, and the
+    # poison is not a detection.
+    renamed = [("C4", "stereo centres", w) if c == "C4" else (c, n, w)
+               for c, n, w in gate.CHECKS]
+    with replaced(gate, "CHECKS", renamed):
+        code, out, rc = run_selftest()
+    bad = []
+    arithmetic(rc, bad)
+    if code == 0 or rc["decision"] == "PASS":
+        bad.append("exit %s, %s: a check whose function cannot be found passed"
+                   % (code, rc["decision"]))
+    if rc["structure_agrees"] is not False:
+        bad.append("structure_agrees is %r" % rc["structure_agrees"])
+    if not re.search(r"^  FAIL\s+CHECKED\s+structure: CHECKS name gate functions\s+fired: C4$",
+                     out, re.M) or \
+            "          C4: gate.check_stereo_centres is not a function" not in out.splitlines():
+        bad.append("the structure line does not name C4 and the function looked for")
+    c4 = by_id(rc)["C4"]
+    if c4["detecting_check_executed"] is not None or c4.get("reason") != selftest.BLIND_SPOT \
+            or "C4" in rc["poison_covers"]:
+        bad.append("a detection nobody saw was counted: %r" % c4)
+    return bad, out
+
+
 def leaked():
     return set(glob.glob(os.path.join(tempfile.gettempdir(), "extraction-gate-*")))
 
@@ -716,6 +743,7 @@ CASES = [
     ("a run that runs no poison produces no figure and does not pass", nothing_ran),
     ("CHECKS drifting from coverage() fails the run", structure_drift),
     ("coverage() dropping a check fails the run and names it", coverage_drops_a_check),
+    ("a check whose name finds no function fails the run and names it", check_renamed),
     ("a crash leaves no old receipt and no temporary directory behind",
      crash_leaves_nothing_behind),
     ("selftest.py run as a script writes a receipt and exits 0", as_a_script),
