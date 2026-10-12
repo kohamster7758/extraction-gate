@@ -64,6 +64,17 @@ were computed on.
 The sampling is seeded (`--seed`, default 20260917) and the medians move by
 under a percent between seeds.
 
+The ratio column was renamed from `fold_B_over_A` to `fold_B_worse_than_A`,
+with the values unchanged. Tables released under the old name stay as they
+are, so the script reads either name and prints `ratio column:` with the one it
+used. Until 2026-10-12 it read only the old name. On a table with the new name
+it printed `0 with a ratio` for every row and then failed on an empty median,
+and that count line was the one a caller would pick out of the output. A table
+with neither name, or both, now exits 2 before any count is printed. A column
+that is present with no values in it also exits 2, after saying so.
+`selftest_sensitivity_cuts.py` runs the same fixture under each name and
+checks that the two runs agree.
+
 ## out_20260917
 
 `cuts.txt` and `duplicate_rows.txt` are the two runs. `groups_human_transcribed.tsv`

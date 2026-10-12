@@ -25,17 +25,37 @@ minimum position count increases is an extreme taken over more draws?
 Counts are taken after removing rows identical in every column. See
 duplicate_rows.py for why that matters.
 
+The ratio column has had two names. fold_B_over_A was renamed
+fold_B_worse_than_A; the values did not change. Tables released under the old
+name stay as they are, so either name is read and the run prints which one.
+A pairs table carrying neither name, or both, is refused before anything is
+counted. Until this check existed a missing column read as a column with no
+values in it, and the run printed a count of zero rows with a ratio before
+failing on an empty median.
+
 Usage:  python sensitivity_cuts.py [--dataset DIR] [--out DIR] [--seed N]
+
+Exit 0 on a completed run, 2 when there was no ratio to take a spread over.
 """
 import argparse, collections, csv, io, os, random, statistics, sys
 
 GROUP_COLS = ("group_id", "target", "assay", "readout", "unit_B")
 MARKS = ("unresolved", "text_says", "not_verified")
+RATIO_COLS = ("fold_B_worse_than_A", "fold_B_over_A")
 
 
 def rd(path):
     with io.open(path, encoding="utf-8", newline="") as fh:
         return list(csv.DictReader(fh, delimiter="\t"))
+
+
+def header(path):
+    with io.open(path, encoding="utf-8", newline="") as fh:
+        return next(csv.reader(fh, delimiter="\t"), [])
+
+
+def ratio_cols_in(cols):
+    return [c for c in RATIO_COLS if c in cols]
 
 
 def num(s):
@@ -44,6 +64,10 @@ def num(s):
         return v if v > 0 else None
     except (TypeError, ValueError):
         return None
+
+
+def ratio(r, col):
+    return num(r[col])
 
 
 def dedup(rows):
@@ -60,10 +84,10 @@ def gkey(r):
     return tuple((r.get(c) or "").strip() for c in GROUP_COLS)
 
 
-def groups(rows, minpos):
+def groups(rows, minpos, col):
     k = collections.defaultdict(list)
     for r in rows:
-        v = num(r.get("fold_B_over_A"))
+        v = ratio(r, col)
         if v:
             k[gkey(r)].append((v, (r.get("position") or "").strip(), r))
     return {kk: vv for kk, vv in sorted(k.items()) if len({x[1] for x in vv}) >= minpos}
@@ -121,15 +145,28 @@ def main():
                     help="module:function returning the admissible subset, default every pair")
     a = ap.parse_args()
 
-    pairs = rd(os.path.join(a.dataset, "pairs.tsv"))
+    ppath = os.path.join(a.dataset, "pairs.tsv")
+    found = ratio_cols_in(header(ppath))
+    if len(found) != 1:
+        print("ABSTAIN: pairs.tsv carries %s of the ratio columns %s."
+              % ("neither" if not found else "both", " and ".join(RATIO_COLS)))
+        print("         Nothing was counted. A missing column is not a column of missing values.")
+        return 2
+    col = found[0]
+    print("ratio column: %s" % col)
+
+    pairs = rd(ppath)
     if a.gate:
         mod, fn = a.gate.split(":")
         sys.path.insert(0, a.dataset)
         pairs = getattr(__import__(mod), fn)(pairs, why="sensitivity_cuts", quiet=True)
     rows = dedup(pairs)
     print("pairs %d rows, %d after removing rows identical in every column" % (len(pairs), len(rows)))
-    numeric = [r for r in rows if num(r.get("fold_B_over_A"))]
+    numeric = [r for r in rows if ratio(r, col)]
     print("  %d = %d with a ratio + %d without" % (len(rows), len(numeric), len(rows) - len(numeric)))
+    if not numeric:
+        print("ABSTAIN: %s is present but no row holds a value in it." % col)
+        return 2
 
     vpath = os.path.join(a.dataset, "verification.tsv")
     tier = {}
@@ -150,10 +187,10 @@ def main():
 
     cuts = {}
     for minpos in (2, 4):
-        inc = groups(rows, minpos)
+        inc = groups(rows, minpos, col)
         eye_groups = {k for k, vv in inc.items() if any(has_eye(x[2]) for x in vv)}
         gc = {k: vv for k, vv in inc.items() if k not in eye_groups}
-        mf = groups([r for r in rows if not has_eye(r)], minpos)
+        mf = groups([r for r in rows if not has_eye(r)], minpos, col)
         cuts[minpos] = (inc, gc, mf, eye_groups)
         for name, gs in (("inclusive", inc), ("group-clean", gc), ("measurement-filtered", mf)):
             n, med, mx, npairs = summary(gs)
@@ -162,7 +199,7 @@ def main():
 
     rnd = random.Random(a.seed)
     inc2, inc4 = cuts[2][0], cuts[4][0]
-    pool = sorted(num(r["fold_B_over_A"]) for r in numeric)
+    pool = sorted(ratio(r, col) for r in numeric)
     print("")
     print("position-matched (seed %d, %d iterations)" % (a.seed, a.iters))
     print("  the >=4 groups held at 4 positions   median %.1f  (observed %.1f)"
@@ -193,7 +230,7 @@ def main():
             w = csv.writer(fh, delimiter="\t", lineterminator="\n")
             w.writerow(["pmid", "group_id", "position", "cmpd_A", "cmpd_B", "target", "issue_flags"])
             for r in rows:
-                if num(r.get("fold_B_over_A")):
+                if ratio(r, col):
                     continue
                 fl = sorted({x for x in (r.get("flags") or "").split(";")
                              if any(t in x for t in MARKS)})

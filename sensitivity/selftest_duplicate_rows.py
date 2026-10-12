@@ -19,7 +19,7 @@ CHECK = os.path.join(HERE, "duplicate_rows.py")
 MEAS_COLS = ["pmid", "compound", "target", "assay", "readout", "value_unit",
              "value", "bound", "position", "backbone_unit"]
 PAIR_COLS = ["pmid", "group_id", "position", "cmpd_A", "cmpd_B", "target",
-             "assay", "readout", "value_A", "value_B", "fold_B_over_A"]
+             "assay", "readout", "value_A", "value_B", "fold_B_worse_than_A"]
 VERIF_COLS = ["pmid", "compound", "target", "value", "unit", "status"]
 
 
