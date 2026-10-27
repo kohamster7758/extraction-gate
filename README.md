@@ -77,7 +77,7 @@ python selftest.py
 python selftest_baseline.py
 ```
 
-Both exit 0. The first ends with `16/16 cases` and `poison covers 11 of 12
+Both exit 0. The first prints `16/16 cases` and `poison covers 11 of 12
 checks`, and names C9 as the check no poison exercises offline. The second
 ends with `checks_passing: 22`. What those lines mean is under "Check the
 checker" below.
@@ -96,7 +96,9 @@ checker" below.
   reads `not_a_smiles` passes and is written.
 - C9 needs the network and is off by default. It asks whether each structure
   is among the ones ChEMBL holds for the DOI. A DOI ChEMBL has not curated
-  passes in silence, and the check does not compare activity values.
+  passes in silence, and the check does not compare activity values. It reads
+  the first 1,000 activity records for the document, so on a larger document
+  a deposited structure can be missed and the row refused.
 - C3 and C7 compare with a snapshot from a run you accepted. On the first run
   they have nothing to look at, and the report says so. C12 runs without one:
   a repeated `row_id`, or a count that differs from `--expect`, is refused on
@@ -122,14 +124,18 @@ that read them: `formula_reported`, `stereo_reported`, `geometry_reported`,
 `sequence`, and `target` `assay` `readout` `unit` `value`. `stereo_reported`
 takes CIP labels in the form `7:S`, where 7 is the position of the atom in
 your SMILES, counted from 1, and not the locant in the paper.
-`geometry_reported` takes one letter, `E` or `Z`. A blank column skips its
-checks for that row, and the report lists the checks that had nothing to work
+`geometry_reported` takes one letter, `E` or `Z`. A blank column skips the
+checks that read it for that row, except in C10, which drops only rows with a
+blank `value` and keeps a blank `target`, `assay`, `readout` or `unit` in the
+key, and the report lists the checks that had nothing to work
 with, so an empty column does not read as a pass. Keep `row_id` stable between
 runs, because the snapshot is keyed on it. `examples/rows.tsv` has every
 column filled.
 
-If your corpus has no structures, C2 through C8 and C11 have nothing to work
-with, and what is left is C1, C10 and C12, which do not depend on the field.
+If your corpus has no structures, the structure checks have nothing to
+compare, except that C2 still refuses a row whose `formula_reported` is filled
+and whose `smiles` is empty or does not parse. C1, C10 and C12 do not depend
+on the field.
 Each check is one function in `gate.py`, named in `CHECKS`, called in
 `run_checks` and counted in `coverage()`. `selftest.py` asserts that `CHECKS`
 and `coverage()` list the same checks and that each name in `CHECKS` finds a

@@ -312,6 +312,7 @@ def check_chembl(rows, timeout=20):
     """C9. Check that each structure is among those ChEMBL holds for the DOI.
 
     Activity values are not compared. Keyed on the DOI, not the compound name.
+    Only the first 1,000 activity records for the document are read.
     """
     import urllib.parse
     import urllib.request

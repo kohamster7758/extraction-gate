@@ -69,8 +69,9 @@ rows are internally consistent. Write a new snapshot only from a run you have
 accepted.
 
 `--chembl` is off by default because it needs the network. It asks whether
-each structure is among the ones ChEMBL holds for the DOI, and it does not
-compare activity values. Run it at least once per corpus.
+each structure is among the ones ChEMBL holds for the DOI, reading the first
+1,000 activity records for the document, and it does not compare activity
+values. Run it at least once per corpus.
 
 ## The checks
 

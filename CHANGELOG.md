@@ -7,13 +7,13 @@ date. No release has been cut.
 
 ### 2026-10-12
 
-- sensitivity: a missing ratio column is not zero ratios. The ratio column was
+- sensitivity: read the renamed ratio column. The ratio column was
   renamed from `fold_B_over_A` to `fold_B_worse_than_A`, and
   `sensitivity_cuts.py` read only the old name, so every row read as having no
   ratio and the run printed a plausible count of zero before failing. It now
   reads either name and prints the one it used; a table with neither or both
   exits 2 before any count. `selftest_sensitivity_cuts.py` is new. (f082df2)
-- selftest: a check nobody saw run is not a detection. A catch now needs the
+- selftest: count a catch only when the check was seen to run. A catch now needs the
   check seen to run, and a name in `CHECKS` that finds no function is a
   structure failure, printed with the function it looked for.
   `selftest_baseline.py` renames C4 in memory and asserts that the run fails
@@ -29,12 +29,12 @@ date. No release has been cut.
   Every fixture is `CHECKED`, `SKIPPED` or `NOT_APPLICABLE`; a declared poison
   whose check has nothing to look at ends the run in `REVIEW`, exit 2.
   `--receipt PATH` writes the result as JSON. `selftest_baseline.py` is new and
-  asserts all of this in memory. `gate.py` is unchanged. (e1be7bc, merged as
-  04aa082)
+  asserts all of this in memory. `gate.py` is unchanged. (e1be7bc, 2026-10-06;
+  merged 2026-10-12 as 04aa082)
 
 ### 2026-09-21
 
-- sensitivity: an absent table is not a clean one. `duplicate_rows.py` used to
+- sensitivity: exit 2 when no input tables are found. `duplicate_rows.py` used to
   print `PASS` and return 0 on a directory holding none of its tables. It now
   exits 2 with `ABSTAIN` and prints which tables it read, which were empty and
   which were missing. Two fixtures cover the path. (a45c2ff)
