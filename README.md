@@ -119,12 +119,14 @@ holds for the DOI. It does not say that the extracted values are right.
 ## Using it on your own table
 
 The input is a TSV with five required columns: `row_id`, `doi`, `group`,
-`label` and `smiles`. `group` is the series a printed label is unique within,
-usually one table of one paper. The optional columns each switch on the checks
+`label` and `smiles`. `group` is the series C5 looks within, usually one table
+of one paper. C11 does not use it: it compares a label within one DOI and
+across DOIs. The optional columns each switch on the checks
 that read them: `formula_reported`, `stereo_reported`, `geometry_reported`,
 `sequence`, and `target` `assay` `readout` `unit` `value`. `stereo_reported`
 takes CIP labels in the form `7:S`, where 7 is the position of the atom in
-your SMILES, counted from 1, and not the locant in the paper.
+your SMILES, counted from 1 after any counter-ion is dropped and the largest
+fragment kept, and not the locant in the paper.
 `geometry_reported` takes one letter, `E` or `Z`. A blank column skips the
 checks that read it for that row, except in C10, which drops only rows with a
 blank `value` and keeps a blank `target`, `assay`, `readout` or `unit` in the
