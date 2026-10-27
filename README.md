@@ -133,8 +133,9 @@ runs, because the snapshot is keyed on it. `examples/rows.tsv` has every
 column filled.
 
 If your corpus has no structures, the structure checks have nothing to
-compare, except that C2 still refuses a row whose `formula_reported` is filled
-and whose `smiles` is empty or does not parse. C1, C10 and C12 do not depend
+compare, except that C2, C4 and C8 still refuse a row whose
+`formula_reported`, `stereo_reported` or `geometry_reported` is filled and
+whose `smiles` is empty or does not parse. C1, C10 and C12 do not depend
 on the field.
 Each check is one function in `gate.py`, named in `CHECKS`, called in
 `run_checks` and counted in `coverage()`. `selftest.py` asserts that `CHECKS`
