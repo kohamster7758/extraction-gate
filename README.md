@@ -92,8 +92,9 @@ checker" below.
   They are a key for C10 and nothing more. A correct structure carrying the
   wrong IC50 passes.
 - A SMILES that does not parse is refused only by a check that has a column to
-  compare it with. With the five required columns alone, a row whose `smiles`
-  reads `not_a_smiles` passes and is written.
+  compare it with. With the five required columns alone and no snapshot entry
+  for that row, a row whose `smiles` reads `not_a_smiles` passes and is
+  written.
 - C9 needs the network and is off by default. It asks whether each structure
   is among the ones ChEMBL holds for the DOI. A DOI ChEMBL has not curated
   passes in silence, and the check does not compare activity values. It reads
@@ -135,7 +136,8 @@ column filled.
 If your corpus has no structures, the structure checks have nothing to
 compare, except that C2, C4 and C8 still refuse a row whose
 `formula_reported`, `stereo_reported` or `geometry_reported` is filled and
-whose `smiles` is empty or does not parse. C1, C10 and C12 do not depend
+whose `smiles` is empty or does not parse, and C3 and C7 refuse it when the
+snapshot holds a structure for that `row_id`. C1, C10 and C12 do not depend
 on the field.
 Each check is one function in `gate.py`, named in `CHECKS`, called in
 `run_checks` and counted in `coverage()`. `selftest.py` asserts that `CHECKS`
