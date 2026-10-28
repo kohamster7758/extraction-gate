@@ -47,7 +47,9 @@ Optional columns, each enabling the checks that use it: `formula_reported`,
 in the form `7:S`, and `geometry_reported` a single `E` or `Z`.
 
 Leave a column blank and its checks are skipped for that row rather than
-passed. The report says which checks had nothing to work with.
+passed, except in C10, which drops only rows with a blank `value` and keeps a
+blank `target`, `assay`, `readout` or `unit` in the key. The report says which
+checks had nothing to work with.
 
 ## Running it
 
@@ -135,6 +137,8 @@ and asserts that this is what is reported.
 ## Adapting it
 
 The checks assume small molecules and peptides with SMILES available. If your
-corpus has no structures, C2 through C8 and C11 have nothing to work with, and
-what is left is C1, C10, C12 and whatever external check you can key on the
-DOI. That is still worth wiring in, because those three are field-independent.
+corpus has no structures, the structure checks have nothing to compare, except
+that C2, C4 and C8 still refuse a row whose `formula_reported`,
+`stereo_reported` or `geometry_reported` is filled, and C3 and C7 refuse it
+when the snapshot holds a structure for that `row_id`. What is left is C1, C10,
+C12 and whatever external check you can key on the DOI. That is still worth wiring in, because those three are field-independent.
